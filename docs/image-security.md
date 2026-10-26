@@ -82,9 +82,12 @@ No newer official pip release was available when checked on 2026-10-23 HST.
 Use a verified upstream fix or obtain Security disposition before publication;
 do not rewrite vendored metadata or replace bundled modules just to clear a scan.
 
-The separate `stable-java11` / `latest-java11` release still uses
-`Dockerfile_Deprecated`: Go 1.20, OpenJDK 11.0.16 and the distribution's older Node
-package. It does not install PHP, but it is outside the Go/Java/Node incident
-floors. It needs a tested migration that preserves the Java 11 and Debian tool
-contracts before publication can be called incident-cleared. The Java 17 fixes
-and checks in this PR do not establish mitigation for those Java 11 tags.
+The `stable-java11` / `latest-java11` image keeps Java 11, its scanner 4.6 release
+and Debian tools. It uses the patched HHI Go builder, Node 22.23.4, Corretto
+11.0.33 and Debian's fixed CA package (20250419~deb12u2 or later).
+
+Both Java variants keep the native CA synchronization path. A small Java-only
+post-update hook removes the four root fingerprints named in [Oracle's eMudhra guidance](https://ops.java/emudhra/).
+Debian selects native Java full refresh and also filters after dpkg finishes
+deferred Java updates. Unrelated system,
+Node and Java roots, emSign C1/C3, and private CA additions/removals remain native.

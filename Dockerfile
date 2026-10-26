@@ -33,6 +33,10 @@ RUN apk --no-cache --update add 'ca-certificates>=20261020-r0' java-cacerts 'nod
 RUN update-ca-certificates \
     && ln -sf /etc/ssl/certs/java/cacerts "$JAVA_HOME/lib/security/cacerts"
 
+COPY scripts/update-java-trust.sh /etc/ca-certificates/update.d/zz-emudhra-java
+RUN chmod 755 /etc/ca-certificates/update.d/zz-emudhra-java \
+    && /etc/ca-certificates/update.d/zz-emudhra-java
+
 COPY --from=build /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner/harness-sonar /bin/
 WORKDIR /bin
 
