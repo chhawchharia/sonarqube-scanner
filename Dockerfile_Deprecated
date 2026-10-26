@@ -1,16 +1,13 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} harness0.harness.io/oci/docker_artifacts/hhi/go:1.26.10@sha256:718fddf012b3a305e936ae9964e5a642036bcb7b4c6c0786e2f78f238d637db8 AS hhi-go-toolchain-0
-FROM --platform=${BUILDPLATFORM:-linux/amd64} harness0.harness.io/oci/docker_artifacts/hhi/harnessos-alpine:1@sha256:290a37c85b4284d2c11fa0778e5da79643d912a1f5a57d6f701b77644503b7e7 AS build
-ARG TARGETOS
-ARG TARGETARCH
-COPY --from=hhi-go-toolchain-0 /usr/lib/go /usr/lib/go
-ENV PATH=/usr/lib/go/bin:$PATH GOPATH=/go GOTOOLCHAIN=local
+FROM golang:1.26.10-alpine@sha256:27f2d3b83cfc5803c8078f8e730af0f7c431bf067afaec8f60a36fb763187cba as build
 RUN apk add --no-cache --update git
 RUN mkdir -p /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner
 WORKDIR /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner 
-COPY go.mod go.sum ./
-RUN go mod download
 COPY *.go ./
-RUN GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH:-amd64} CGO_ENABLED=0 go build -mod=readonly -o harness-sonar
+COPY go.mod go.sum ./
+
+RUN go env GOCACHE 
+
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -mod=readonly -o harness-sonar
 
 FROM amazoncorretto:11-al2023@sha256:b0feaa2681d598de7831a0ebc5190c56e209ecb5fefb72eb9e337c849d362fea AS java11
 
@@ -24,17 +21,11 @@ ARG SONAR_SCANNER_CLI=sonar-scanner-cli-${SONAR_VERSION}
 ARG SONAR_SCANNER=sonar-scanner-${SONAR_VERSION}
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates ca-certificates-java curl unzip libfreetype6 \
+    && apt-get install -y ca-certificates ca-certificates-java curl unzip libfreetype6 \
     && dpkg --compare-versions "$(dpkg-query -W -f='${Version}' ca-certificates)" ge '20250419~deb12u2' \
     && ln -sf /etc/ssl/certs/java/cacerts "$JAVA_HOME/lib/security/cacerts" \
     && update-ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY scripts/update-java-trust.sh /etc/ca-certificates/update.d/zz-emudhra-java
-RUN printf '%s\n' '#!/bin/sh' 'touch /var/lib/ca-certificates-java/fresh' > /etc/ca-certificates/update.d/00-emudhra-java-refresh \
-    && chmod 755 /etc/ca-certificates/update.d/00-emudhra-java-refresh /etc/ca-certificates/update.d/zz-emudhra-java \
-    && printf '%s\n' 'post-invoke=/etc/ca-certificates/update.d/zz-emudhra-java' > /etc/dpkg/dpkg.cfg.d/emudhra-java \
-    && /etc/ca-certificates/update.d/zz-emudhra-java
+    && apt-get clean
 
 COPY --from=build /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner/harness-sonar /bin/
 WORKDIR /bin
