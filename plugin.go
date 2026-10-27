@@ -267,7 +267,7 @@ func displaySummary(total, passed, failed int, errors int, newErrors int, projec
 	}
 
 	// Write to the .env file
-	filePath := fmt.Sprintf(droneOutputPath)
+	filePath := droneOutputPath
 	err := writeEnvFile(vars, filePath)
 	if err != nil {
 		fmt.Println("Error writing to .env file:", err)
@@ -745,7 +745,7 @@ func getStatus(task *TaskResponse, report *SonarReport) string {
 		}).Fatal("Failed get status")
 	}
 	fmt.Printf("==> Job Quality Gate Request:\n")
-	fmt.Printf(report.ServerURL + "/api/qualitygates/project_status?" + reportRequest.Encode())
+	fmt.Print(report.ServerURL + "/api/qualitygates/project_status?" + reportRequest.Encode())
 	fmt.Printf("\n")
 	fmt.Printf("\n")
 	projectRequest.Header.Add("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(sonarToken+":")))
@@ -820,10 +820,10 @@ func getStatusID(taskIDOld string, sonarHost string, projectSlug string) (string
 		"analysisId": {taskID},
 	}
 	fmt.Printf("==> Job Status Request:\n")
-	fmt.Printf(sonarHost + "/api/qualitygates/project_status?" + reportRequest.Encode())
+	fmt.Print(sonarHost + "/api/qualitygates/project_status?" + reportRequest.Encode())
 	fmt.Printf("\n")
 	fmt.Printf("\n")
-	fmt.Printf("analysisId:" + taskID)
+	fmt.Print("analysisId:" + taskID)
 	fmt.Printf("\n")
 
 	buf, err := GetProjectStatus(sonarHost, reportRequest.Encode(), projectSlug)
@@ -843,7 +843,7 @@ func getStatusID(taskIDOld string, sonarHost string, projectSlug string) (string
 	}
 
 	fmt.Printf("==> Report Result:\n")
-	fmt.Printf(string(buf))
+	fmt.Print(string(buf))
 
 	// JUNUT
 	junitReport := ""
@@ -894,11 +894,11 @@ func getStatusV2(scanType string, scanValue string, sonarHost string, projectSlu
 	}
 
 	fmt.Printf("==> Job Status Request:\n")
-	fmt.Printf(sonarHost + "/api/qualitygates/project_status?" + reportRequest.Encode())
+	fmt.Print(sonarHost + "/api/qualitygates/project_status?" + reportRequest.Encode())
 	fmt.Printf("\n")
 	fmt.Printf("\n")
-	fmt.Printf("scanType:" + scanType)
-	fmt.Printf("scanValue:" + scanValue)
+	fmt.Print("scanType:" + scanType)
+	fmt.Print("scanValue:" + scanValue)
 	fmt.Printf("\n")
 
 	buf, err := GetProjectStatus(sonarHost, reportRequest.Encode(), projectSlug)
@@ -918,7 +918,7 @@ func getStatusV2(scanType string, scanValue string, sonarHost string, projectSlu
 	}
 
 	fmt.Printf("==> Report Result:\n")
-	fmt.Printf(string(buf))
+	fmt.Print(string(buf))
 
 	// JUNUT
 	junitReport := ""
@@ -950,7 +950,7 @@ func getStatusV2(scanType string, scanValue string, sonarHost string, projectSlu
 func GetProjectStatus(sonarHost string, analysisId string, projectSlug string) ([]byte, error) {
 	token := os.Getenv("PLUGIN_SONAR_TOKEN")
 	fmt.Printf("\n")
-	fmt.Printf("Getting project status: " + projectSlug + "\n" + analysisId)
+	fmt.Print("Getting project status: " + projectSlug + "\n" + analysisId)
 	netClient := &http.Client{
 		Timeout: time.Second * 10, // you can adjust the timeout
 	}
@@ -958,7 +958,7 @@ func GetProjectStatus(sonarHost string, analysisId string, projectSlug string) (
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("URL:" + sonarHost + "/api/qualitygates/project_status?" + analysisId)
+	fmt.Print("URL:" + sonarHost + "/api/qualitygates/project_status?" + analysisId)
 
 	fmt.Printf("\n")
 	// fmt.Printf("Setting Authorization header:" + token)
@@ -977,7 +977,7 @@ func GetProjectStatus(sonarHost string, analysisId string, projectSlug string) (
 		return nil, err
 
 	}
-	fmt.Printf("Response Code:" + projectResponse.Status)
+	fmt.Print("Response Code:" + projectResponse.Status)
 	buf := []byte{}
 	// if status code 401 try again with bearer token
 	if projectResponse.StatusCode == 401 {
@@ -995,7 +995,7 @@ func GetProjectStatus(sonarHost string, analysisId string, projectSlug string) (
 			fmt.Printf("NIL - Error getting project status, trying again with bearer token...")
 			return nil, err
 		}
-		fmt.Printf("Response Code with Bearer:" + projectBearerResponse.Status)
+		fmt.Print("Response Code with Bearer:" + projectBearerResponse.Status)
 		if projectBearerResponse.StatusCode == 401 {
 			fmt.Printf("\n")
 			fmt.Printf("Error getting project status, trying again with bearer token...")
@@ -1115,7 +1115,7 @@ func GetLatestTaskID(sonarHost string, projectSlug string) (string, error) {
 func getSonarJobStatus(report *SonarReport) *TaskResponse {
 	fmt.Printf("\n")
 	fmt.Printf("==> Job Status Request:\n")
-	fmt.Printf(report.ServerURL + "/api/ce/task?id=" + report.CeTaskID)
+	fmt.Print(report.ServerURL + "/api/ce/task?id=" + report.CeTaskID)
 	fmt.Printf("\n")
 	fmt.Printf("\n")
 
