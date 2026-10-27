@@ -21,15 +21,10 @@ ARG SONAR_SCANNER=sonar-scanner-${SONAR_VERSION}
 #     && apt-get install -y nodejs curl \
 #     && apt-get clean
 
-RUN apk --no-cache --update add 'amazon-corretto-17>=17.0.21.0.11-r0' 'ca-certificates>=20261020-r0' java-cacerts 'nodejs>=22.23.4' npm curl unzip git php python3 py3-pip maven gcc g++ make ruby ruby-dev perl \
+RUN apk --no-cache --update add 'amazon-corretto-17>=17.0.21.0.11-r0' 'ca-certificates>=20261020-r0' 'nodejs>=22.23.4' npm curl unzip git php python3 py3-pip maven gcc g++ make ruby ruby-dev perl \
     && python3 -m pip install --no-cache-dir --break-system-packages 'pip==26.2.2' 'certifi==2026.10.19'
 
-RUN update-ca-certificates \
-    && ln -sf /etc/ssl/certs/java/cacerts "$JAVA_HOME/lib/security/cacerts"
-
-COPY scripts/update-java-trust.sh /etc/ca-certificates/update.d/zz-emudhra-java
-RUN chmod 755 /etc/ca-certificates/update.d/zz-emudhra-java \
-    && /etc/ca-certificates/update.d/zz-emudhra-java
+RUN update-ca-certificates
 
 COPY --from=build /go/src/github.com/diegopereiraeng/harness-cie-sonarqube-scanner/harness-sonar /bin/
 WORKDIR /bin
