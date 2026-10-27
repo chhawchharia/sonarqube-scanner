@@ -1,6 +1,6 @@
 module github.com/diegopereiraeng/drone-plugin-sonar
 
-go 1.26.10
+go 1.18
 
 require (
 	github.com/joho/godotenv v1.5.1

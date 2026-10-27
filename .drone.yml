@@ -12,8 +12,6 @@ steps:
   - name: pr test java
     image: plugins/docker:20
     settings:
-      pull_image: true
-      no_cache: true
       daemon_off: false
       dockerfile: Dockerfile
       repo: plugins/sonarqube-scanner
@@ -24,8 +22,6 @@ steps:
   - name: publish-2.4.2
     image: plugins/docker:20
     settings:
-      pull_image: true
-      no_cache: true
       # auto_tag: true
       # auto_tag_suffix: v2.0.2-java17
       tags:
@@ -46,8 +42,6 @@ steps:
   - name: publish-2.4.2-java11
     image: plugins/docker:20
     settings:
-      pull_image: true
-      no_cache: true
       # auto_tag: true
       # auto_tag_suffix: v2.0.2-java17
       tags:
